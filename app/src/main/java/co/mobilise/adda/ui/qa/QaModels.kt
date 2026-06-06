@@ -15,6 +15,8 @@ data class ChatMessage(
     val image: Bitmap? = null,
     /** For a user message: an attached document's name (PDF/text), shown as a chip. */
     val fileName: String? = null,
+    /** When this message was created (used by session export). */
+    val createdAt: Long = System.currentTimeMillis(),
 )
 
 /** Answer-language toggle shown in the Q&A top bar. */

@@ -38,6 +38,7 @@ import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PhotoCamera
@@ -79,6 +80,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.mobilise.adda.client.HostClient
+import co.mobilise.adda.export.ExportFormat
+import co.mobilise.adda.export.SessionExporter
+import co.mobilise.adda.export.buildSession
 import co.mobilise.adda.llm.LlmService
 import co.mobilise.adda.state.AppMode
 import co.mobilise.adda.state.AppViewModel
@@ -143,6 +147,26 @@ fun QaScreen(
             scope.launch { HostClient.reset(app.baseUrl, asker) }
         } else {
             LlmService.clearThread(asker)
+        }
+    }
+
+    // ---- export (optional; never touches the core Q&A flow) ----------------
+    var exportMenu by remember { mutableStateOf(false) }
+    fun export(format: ExportFormat) {
+        exportMenu = false
+        if (vm.messages.none { it.isAi && it.text.isNotBlank() }) {
+            Toast.makeText(context, "Pehle kuch poochho, phir export", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val session = buildSession(vm.messages.toList(), app.subject)
+        Toast.makeText(context, "${format.label} ban raha hai…", Toast.LENGTH_SHORT).show()
+        scope.launch {
+            runCatching {
+                val file = withContext(Dispatchers.IO) { SessionExporter.write(context, session, format) }
+                SessionExporter.share(context, file, format)
+            }.onFailure {
+                Toast.makeText(context, "Export fail: ${it.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -339,6 +363,19 @@ fun QaScreen(
                     }
                 },
                 actions = {
+                    Box {
+                        IconButton(
+                            onClick = { exportMenu = true },
+                            enabled = !vm.isResponding && vm.messages.isNotEmpty(),
+                        ) {
+                            Icon(Icons.Rounded.FileDownload, contentDescription = "Export session", tint = AddaMuted)
+                        }
+                        DropdownMenu(expanded = exportMenu, onDismissRequest = { exportMenu = false }) {
+                            ExportFormat.entries.forEach { fmt ->
+                                DropdownMenuItem(text = { Text(fmt.label) }, onClick = { export(fmt) })
+                            }
+                        }
+                    }
                     IconButton(onClick = { newChat() }, enabled = !vm.isResponding) {
                         Icon(
                             Icons.Rounded.RestartAlt,
