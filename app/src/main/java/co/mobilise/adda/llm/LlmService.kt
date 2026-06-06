@@ -50,8 +50,10 @@ object LlmService {
     // Gemma 3n E4B supports long context; 2048 gives room for a fuller answer
     // while staying light on KV-cache memory (device has 16 GB).
     private const val MAX_TOKENS = 2048
-    private const val TOP_K = 40
-    private const val TEMPERATURE = 0.8f
+    // Tighter sampling keeps Gemma 3n from randomly code-switching into other
+    // scripts (it was injecting Chinese/Devanagari into Hinglish answers).
+    private const val TOP_K = 30
+    private const val TEMPERATURE = 0.6f
 
     /** Keep at most this many recent (question, answer) rounds per thread. */
     private const val MAX_TURNS = 5
@@ -60,7 +62,9 @@ object LlmService {
     private val SYSTEM_PREAMBLE = """
         You are "Adda", a friendly study buddy for Indian students.
         Follow these rules strictly:
-        - Reply in short, simple Hinglish (Hindi + English mixed, in Roman script).
+        - Reply ONLY in Hinglish (Hindi + English mixed) written in plain ROMAN
+          (English A-Z) letters. NEVER use Chinese, Devanagari, Arabic, or any
+          other script. Every single word must be in English letters.
         - Keep answers to 2-5 sentences. Be clear, warm and to the point.
         - Put EVERY formula, equation, or code snippet inside a fenced ``` block.
         - Use simple examples a student would get. No long lectures.

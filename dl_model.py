@@ -6,7 +6,8 @@ from huggingface_hub import hf_hub_download
 
 REPO = "google/gemma-3n-E4B-it-litert-preview"
 FILE = "gemma-3n-E4B-it-int4.task"
-DEST = r"C:\Users\avina\Desktop\Adda\model"
+# Downloads into a ./model folder next to this script (override with MODEL_DIR).
+DEST = os.environ.get("MODEL_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "model"))
 
 path = hf_hub_download(
     repo_id=REPO,
