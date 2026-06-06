@@ -1,0 +1,10 @@
+<resources>
+    <!-- Compose owns the real theming; this XML theme only sets the window
+         background + transparent system bars so there's no white flash on launch. -->
+    <style name="Theme.Adda" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/adda_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

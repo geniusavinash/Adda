@@ -1,0 +1,24 @@
+*.iml
+.gradle
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# build output
+/app/build
+.kotlin/
+
+# the on-device model (4.4 GB) — re-download via dl_model.py
+/model
+*.task
+
+# backups + throwaway artifacts
+/backup
+build_*.log
+*.apk
+honor_shot.png
+testimg.jpg
